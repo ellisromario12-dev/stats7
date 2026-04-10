@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Median, Mode & Range — 7th Grade Stats</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0b0f1a;
+    --navy2: #111827;
+    --navy3: #1a2235;
+    --card: #1e2a40;
+    --border: #2a3a55;
+    --teal: #00d4aa;
+    --teal2: #00b896;
+    --amber: #f5a623;
+    --coral: #ff6b6b;
+    --text: #e8ecf3;
+    --muted: #7a8aaa;
+    --white: #ffffff;
+    --radius: 14px;
+    --mono: 'DM Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,15,26,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+  }
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 1.1rem; font-weight: 800;
+    color: var(--teal);
+    letter-spacing: -0.5px;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none; font-size: 0.875rem; font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 6rem 2rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(0,212,170,0.12);
+    color: var(--teal);
+    border: 1px solid rgba(0,212,170,0.3);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-family: var(--mono);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 span { color: var(--teal); }
+  .hero p { color: var(--muted); font-size: 1.05rem; font-weight: 300; max-width: 420px; }
+
+  .hero-visual {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .hero-visual-label {
+    font-family: var(--mono);
+    font-size: 0.72rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .data-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .data-chip {
+    background: var(--navy3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: var(--mono);
+    font-size: 1.1rem; font-weight: 500;
+    color: var(--text);
+    transition: all 0.3s;
+  }
+  .data-chip.median  { border-color: var(--teal); color: var(--teal); background: rgba(0,212,170,0.08); }
+  .data-chip.mode    { border-color: var(--amber); color: var(--amber); background: rgba(245,166,35,0.08); }
+  .data-chip.dup     { border-color: var(--amber); color: var(--amber); background: rgba(245,166,35,0.08); }
+
+  .stat-row { display: flex; gap: 10px; }
+  .stat-pill {
+    flex: 1;
+    background: var(--navy3);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+  .stat-pill .label { font-size: 0.72rem; font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-pill .value { font-family: var(--display); font-size: 1.5rem; font-weight: 800; margin-top: 2px; }
+  .stat-pill.t .value { color: var(--teal); }
+  .stat-pill.a .value { color: var(--amber); }
+  .stat-pill.c .value { color: var(--coral); }
+
+  /* ── SECTION HEADERS ── */
+  .section-wrap { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.72rem; color: var(--teal);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 0.6rem;
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin-bottom: 0.75rem;
+  }
+  .section-sub { color: var(--muted); max-width: 520px; font-weight: 300; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* ── CONCEPT CARDS ── */
+  .concepts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
+
+  .concept-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    display: flex; flex-direction: column; gap: 1rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .concept-card:hover { transform: translateY(-3px); }
+  .concept-card.teal { border-top: 3px solid var(--teal); }
+  .concept-card.amber { border-top: 3px solid var(--amber); }
+  .concept-card.coral { border-top: 3px solid var(--coral); }
+
+  .concept-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 500; font-size: 1.1rem;
+  }
+  .icon-teal  { background: rgba(0,212,170,0.15); color: var(--teal); }
+  .icon-amber { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .icon-coral { background: rgba(255,107,107,0.15); color: var(--coral); }
+
+  .concept-card h3 { font-family: var(--display); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+  .concept-card p { color: var(--muted); font-size: 0.9rem; }
+
+  .formula-box {
+    background: var(--navy3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text);
+    border-left: 3px solid;
+  }
+  .formula-box.teal  { border-color: var(--teal); }
+  .formula-box.amber { border-color: var(--amber); }
+  .formula-box.coral { border-color: var(--coral); }
+
+  .step-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .step-list li {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 0.88rem; color: var(--muted);
+  }
+  .step-num {
+    min-width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 500;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .sn-teal  { background: rgba(0,212,170,0.15); color: var(--teal); }
+  .sn-amber { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .sn-coral { background: rgba(255,107,107,0.15); color: var(--coral); }
+
+  .example-badge {
+    display: inline-block;
+    background: rgba(0,212,170,0.1);
+    color: var(--teal);
+    border: 1px solid rgba(0,212,170,0.2);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-family: var(--mono);
+  }
+
+  /* ── DEEP DIVE SECTION ── */
+  .deep-dive { background: var(--navy2); }
+  .deep-content {
+    max-width: 1100px; margin: 0 auto; padding: 4rem 2rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;
+  }
+  .tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+  .tab-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--muted);
+    font-family: var(--mono); font-size: 0.8rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .tab-btn.active-teal  { background: rgba(0,212,170,0.12); border-color: rgba(0,212,170,0.4); color: var(--teal); }
+  .tab-btn.active-amber { background: rgba(245,166,35,0.12); border-color: rgba(245,166,35,0.4); color: var(--amber); }
+  .tab-btn.active-coral { background: rgba(255,107,107,0.12); border-color: rgba(255,107,107,0.4); color: var(--coral); }
+  .tab-btn:hover { color: var(--text); border-color: var(--text); }
+
+  .worked-problem {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+  .problem-title { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+  .problem-data {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem;
+  }
+  .pd-chip {
+    background: var(--navy3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: var(--mono); font-size: 1rem;
+  }
+  .pd-chip.hi-teal  { border-color: var(--teal); color: var(--teal); background: rgba(0,212,170,0.1); }
+  .pd-chip.hi-amber { border-color: var(--amber); color: var(--amber); background: rgba(245,166,35,0.1); }
+  .pd-chip.hi-coral { border-color: var(--coral); color: var(--coral); background: rgba(255,107,107,0.1); }
+
+  .solution-steps { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .solution-steps li {
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 0.88rem;
+  }
+  .ss-step {
+    background: var(--navy3);
+    border-radius: 6px; padding: 6px 10px;
+    font-family: var(--mono); font-size: 0.78rem;
+    color: var(--muted); white-space: nowrap; flex-shrink: 0;
+  }
+  .answer-box {
+    margin-top: 1rem;
+    background: var(--navy3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: var(--mono);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .answer-box .ans-label { font-size: 0.78rem; color: var(--muted); }
+  .answer-box .ans-value { font-size: 1.25rem; font-weight: 500; }
+  .ans-t { color: var(--teal); }
+  .ans-a { color: var(--amber); }
+  .ans-c { color: var(--coral); }
+
+  /* ── EVEN/ODD CALLOUT ── */
+  .callout {
+    background: rgba(0,212,170,0.06);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+  }
+  .callout h4 { font-family: var(--display); font-size: 1rem; color: var(--teal); margin-bottom: 0.5rem; }
+  .callout p { font-size: 0.88rem; color: var(--muted); }
+  .callout code { font-family: var(--mono); color: var(--teal); background: rgba(0,212,170,0.1); padding: 1px 6px; border-radius: 4px; }
+
+  /* ── CALCULATOR ── */
+  .calc-section { background: var(--navy); }
+  .calc-wrap { max-width: 760px; margin: 0 auto; padding: 4rem 2rem; }
+  .calc-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-top: 2rem;
+  }
+  .calc-input-group { display: flex; gap: 10px; margin-bottom: 1rem; }
+  .calc-input {
+    flex: 1;
+    background: var(--navy3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .calc-input:focus { border-color: var(--teal); }
+  .calc-input::placeholder { color: var(--muted); }
+  .calc-btn {
+    background: var(--teal);
+    color: var(--navy);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-family: var(--display);
+    font-size: 0.9rem; font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .calc-btn:hover { background: var(--teal2); }
+  .calc-hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+  .calc-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .calc-result-card {
+    background: var(--navy3);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s;
+  }
+  .calc-result-card.active-t { border-color: rgba(0,212,170,0.5); }
+  .calc-result-card.active-a { border-color: rgba(245,166,35,0.5); }
+  .calc-result-card.active-c { border-color: rgba(255,107,107,0.5); }
+  .crc-label { font-size: 0.72rem; font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .crc-value { font-family: var(--display); font-size: 1.75rem; font-weight: 800; margin: 4px 0; min-height: 2rem; }
+  .crc-sub { font-size: 0.78rem; color: var(--muted); font-family: var(--mono); }
+  .crc-t .crc-value { color: var(--teal); }
+  .crc-a .crc-value { color: var(--amber); }
+  .crc-c .crc-value { color: var(--coral); }
+
+  .sorted-display {
+    background: var(--navy3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: var(--mono); font-size: 0.9rem;
+    margin-top: 1rem;
+    min-height: 44px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  }
+  .sorted-chip {
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .sorted-chip.med { border-color: var(--teal); color: var(--teal); background: rgba(0,212,170,0.1); }
+  .sorted-chip.mod { border-color: var(--amber); color: var(--amber); background: rgba(245,166,35,0.1); }
+  .sorted-chip.mn  { border-color: var(--coral); color: var(--coral); background: rgba(255,107,107,0.1); }
+  .sorted-chip.mx  { border-color: var(--coral); color: var(--coral); background: rgba(255,107,107,0.1); }
+  .sorted-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.05em; }
+
+  /* ── QUIZ ── */
+  .quiz-section { background: var(--navy2); }
+  .quiz-wrap { max-width: 760px; margin: 0 auto; padding: 4rem 2rem; }
+  .quiz-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-top: 2rem;
+  }
+  .quiz-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .q-progress {
+    display: flex; gap: 6px;
+  }
+  .q-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .q-dot.done { background: var(--teal); }
+  .q-dot.current { background: var(--amber); }
+  .q-score { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+  .q-score span { color: var(--teal); font-weight: 500; }
+
+  .question-text {
+    font-family: var(--display);
+    font-size: 1.15rem; font-weight: 700;
+    margin-bottom: 0.5rem; line-height: 1.4;
+  }
+  .data-set { font-family: var(--mono); color: var(--teal); font-size: 0.95rem; margin-bottom: 1.5rem; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
+  .choice-btn {
+    background: var(--navy3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--body); font-size: 0.9rem;
+    cursor: pointer; text-align: left;
+    transition: all 0.2s;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .choice-btn:hover { border-color: rgba(0,212,170,0.5); background: rgba(0,212,170,0.05); }
+  .choice-btn.correct { border-color: var(--teal); background: rgba(0,212,170,0.1); color: var(--teal); }
+  .choice-btn.wrong { border-color: var(--coral); background: rgba(255,107,107,0.1); color: var(--coral); }
+  .choice-btn:disabled { cursor: default; }
+  .choice-letter {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--border); font-family: var(--mono);
+    font-size: 0.72rem; font-weight: 500; flex-shrink: 0;
+  }
+
+  .feedback {
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 0.88rem; margin-bottom: 1rem;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3); color: var(--teal); }
+  .feedback.wrong { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); color: var(--coral); }
+
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; }
+  .next-btn {
+    background: var(--teal); color: var(--navy);
+    border: none; border-radius: 10px;
+    padding: 10px 24px;
+    font-family: var(--display); font-size: 0.88rem; font-weight: 800;
+    cursor: pointer; transition: background 0.2s;
+    display: none;
+  }
+  .next-btn.show { display: block; }
+  .next-btn:hover { background: var(--teal2); }
+
+  .quiz-complete { text-align: center; padding: 1rem; display: none; }
+  .quiz-complete.show { display: block; }
+  .big-score {
+    font-family: var(--display);
+    font-size: 4rem; font-weight: 800;
+    line-height: 1;
+  }
+  .score-teal { color: var(--teal); }
+  .score-amber { color: var(--amber); }
+  .score-coral { color: var(--coral); }
+
+  .retry-btn {
+    background: var(--navy3); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px;
+    padding: 10px 24px; font-family: var(--display); font-size: 0.88rem; font-weight: 800;
+    cursor: pointer; margin-top: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .retry-btn:hover { border-color: var(--teal); }
+
+  .hint-btn {
+    background: transparent;
+    border: 1px solid rgba(245,166,35,0.4);
+    color: var(--amber);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-family: var(--mono); font-size: 0.78rem;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .hint-btn:hover { background: rgba(245,166,35,0.08); border-color: var(--amber); }
+  .hint-btn:disabled { opacity: 0.4; cursor: default; }
+  .hint-btn .hint-icon {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(245,166,35,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: var(--amber);
+    flex-shrink: 0;
+  }
+  .hint-box {
+    background: rgba(245,166,35,0.07);
+    border: 1px solid rgba(245,166,35,0.25);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.86rem; color: var(--amber);
+    margin-bottom: 1rem;
+    display: none;
+    animation: fadeSlide 0.25s ease;
+  }
+  .hint-box.show { display: flex; gap: 10px; align-items: flex-start; }
+  .hint-box-icon { font-size: 0.75rem; font-family: var(--mono); opacity: 0.7; flex-shrink: 0; margin-top: 2px; }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── MEME POPUP ── */
+  .meme-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .meme-overlay.show { opacity: 1; pointer-events: all; }
+  .meme-card {
+    background: var(--card);
+    border: 2px solid var(--coral);
+    border-radius: 20px;
+    padding: 2rem 2rem 1.5rem;
+    max-width: 360px; width: 90%;
+    text-align: center;
+    transform: scale(0.85) translateY(20px);
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .meme-overlay.show .meme-card { transform: scale(1) translateY(0); }
+  .meme-face {
+    font-size: 4.5rem; line-height: 1;
+    margin-bottom: 0.5rem;
+    display: block;
+    animation: wobble 0.5s ease 0.2s both;
+  }
+  @keyframes wobble {
+    0%   { transform: rotate(0deg); }
+    20%  { transform: rotate(-10deg); }
+    40%  { transform: rotate(10deg); }
+    60%  { transform: rotate(-6deg); }
+    80%  { transform: rotate(4deg); }
+    100% { transform: rotate(0deg); }
+  }
+  .meme-title {
+    font-family: var(--display);
+    font-size: 1.6rem; font-weight: 800;
+    color: var(--coral);
+    letter-spacing: -1px;
+    margin-bottom: 0.4rem;
+  }
+  .meme-sub {
+    font-size: 0.88rem; color: var(--muted);
+    line-height: 1.5; margin-bottom: 1.25rem;
+  }
+  .meme-sub strong { color: var(--text); }
+  .meme-close {
+    background: var(--coral);
+    color: var(--white);
+    border: none; border-radius: 10px;
+    padding: 10px 28px;
+    font-family: var(--display); font-size: 0.9rem; font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    width: 100%;
+  }
+  .meme-close:hover { opacity: 0.85; }
+  .ref-section { background: var(--navy); }
+  .ref-wrap { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+  .ref-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
+  .ref-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+  .ref-card h4 { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+  .ref-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .ref-card ul li { font-size: 0.88rem; color: var(--muted); padding-left: 14px; position: relative; }
+  .ref-card ul li::before { content: '—'; position: absolute; left: 0; color: var(--border); }
+  .ref-card ul li strong { color: var(--text); }
+
+  /* ── VIDEO SECTION ── */
+  .video-section { background: var(--navy3); }
+  .video-wrap { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+  .video-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2.5rem; max-width: 760px; }
+  .video-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; transition: transform 0.2s;
+  }
+  .video-card:hover { transform: translateY(-3px); }
+  .video-card.vc-teal  { border-top: 3px solid var(--teal); }
+  .video-card.vc-amber { border-top: 3px solid var(--amber); }
+  .video-card.vc-coral { border-top: 3px solid var(--coral); }
+  .video-embed { position: relative; width: 100%; padding-bottom: 56.25%; background: var(--navy); }
+  .video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+  .video-thumb-link { display: block; text-decoration: none; }
+  .video-thumb {
+    position: relative; width: 100%; padding-bottom: 56.25%;
+    background-size: cover; background-position: center;
+    background-color: var(--navy);
+  }
+  .play-btn {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.35);
+    transition: background 0.2s;
+  }
+  .video-thumb-link:hover .play-btn { background: rgba(0,0,0,0.55); }
+  .play-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    clip-path: polygon(35% 20%, 35% 80%, 80% 50%);
+    margin-left: 5px;
+  }
+  .video-thumb-link:hover .play-icon { background: var(--teal); }
+  .video-info { padding: 1rem 1.25rem; }
+  .video-tag {
+    display: inline-block; font-family: var(--mono); font-size: 0.68rem;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 3px 10px; border-radius: 20px; margin-bottom: 0.5rem;
+  }
+  .vt-teal  { background: rgba(0,212,170,0.12); color: var(--teal); border: 1px solid rgba(0,212,170,0.25); }
+  .vt-amber { background: rgba(245,166,35,0.12); color: var(--amber); border: 1px solid rgba(245,166,35,0.25); }
+  .vt-coral { background: rgba(255,107,107,0.12); color: var(--coral); border: 1px solid rgba(255,107,107,0.25); }
+  .video-title { font-family: var(--display); font-size: 1rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .video-desc { font-size: 0.82rem; color: var(--muted); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.82rem; color: var(--muted); font-family: var(--mono);
+  }
+  footer span { color: var(--teal); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; gap: 2rem; padding: 4rem 1.5rem 2rem; }
+    .concepts-grid { grid-template-columns: 1fr; }
+    .deep-content { grid-template-columns: 1fr; gap: 2rem; }
+    .calc-results { grid-template-columns: 1fr; }
+    .ref-grid { grid-template-columns: 1fr; }
+    .video-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">stats.7</a>
+  <ul class="nav-links">
+    <li><a href="#concepts">Concepts</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#examples">Examples</a></li>
+    <li><a href="#calculator">Calculator</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section>
+  <div class="hero">
+    <div>
+      <div class="hero-tag">7th grade · statistics</div>
+      <h1>Median,<br>Mode &amp;<br><span>Range.</span></h1>
+      <p>Master the three essential measures of data — with clear explanations, worked examples, and an interactive quiz.</p>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-visual-label">dataset · test scores</div>
+      <div class="data-row">
+        <div class="data-chip">72</div>
+        <div class="data-chip mode">85</div>
+        <div class="data-chip">91</div>
+        <div class="data-chip median">88</div>
+        <div class="data-chip">66</div>
+        <div class="data-chip mode dup">85</div>
+        <div class="data-chip">94</div>
+      </div>
+      <div style="font-size:0.75rem; color:var(--muted); font-family:var(--mono);">
+        <span style="color:var(--teal);">■</span> median &nbsp;
+        <span style="color:var(--amber);">■</span> mode
+      </div>
+      <div class="stat-row">
+        <div class="stat-pill t">
+          <div class="label">Median</div>
+          <div class="value">88</div>
+        </div>
+        <div class="stat-pill a">
+          <div class="label">Mode</div>
+          <div class="value">85</div>
+        </div>
+        <div class="stat-pill c">
+          <div class="label">Range</div>
+          <div class="value">28</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CONCEPTS -->
+<section id="concepts">
+  <div class="section-wrap">
+    <div class="section-label">01 · concepts</div>
+    <h2 class="section-title">The Big Three</h2>
+    <p class="section-sub">Three ways to describe and summarize a data set — each tells you something different.</p>
+
+    <div class="concepts-grid">
+
+      <!-- MEDIAN -->
+      <div class="concept-card teal">
+        <div class="concept-icon icon-teal">Md</div>
+        <h3>Median</h3>
+        <p>The <strong>middle value</strong> when all numbers are sorted in order. Half the values are above it, half are below.</p>
+        <div class="formula-box teal">Arrange → Find middle</div>
+        <ul class="step-list">
+          <li><span class="step-num sn-teal">1</span>Write the numbers in order from least to greatest</li>
+          <li><span class="step-num sn-teal">2</span>Find the middle value</li>
+          <li><span class="step-num sn-teal">3</span>If two middle values exist, average them</li>
+        </ul>
+        <div><span class="example-badge">example</span></div>
+        <div style="font-family:var(--mono);font-size:0.82rem;color:var(--muted);">
+          4, 7, <span style="color:var(--teal)">9</span>, 11, 15 → Median = <span style="color:var(--teal)">9</span>
+        </div>
+      </div>
+
+      <!-- MODE -->
+      <div class="concept-card amber">
+        <div class="concept-icon icon-amber">Mo</div>
+        <h3>Mode</h3>
+        <p>The value that appears <strong>most frequently</strong> in the data set. A set can have no mode, one, or many.</p>
+        <div class="formula-box amber">Count repeats → Highest frequency</div>
+        <ul class="step-list">
+          <li><span class="step-num sn-amber">1</span>Count how many times each value appears</li>
+          <li><span class="step-num sn-amber">2</span>The value(s) with the highest count = mode</li>
+          <li><span class="step-num sn-amber">3</span>No repeats = no mode</li>
+        </ul>
+        <div><span class="example-badge">example</span></div>
+        <div style="font-family:var(--mono);font-size:0.82rem;color:var(--muted);">
+          3, <span style="color:var(--amber)">7</span>, 2, <span style="color:var(--amber)">7</span>, 9 → Mode = <span style="color:var(--amber)">7</span>
+        </div>
+      </div>
+
+      <!-- RANGE -->
+      <div class="concept-card coral">
+        <div class="concept-icon icon-coral">R</div>
+        <h3>Range</h3>
+        <p>How <strong>spread out</strong> the data is — the difference between the largest and smallest values.</p>
+        <div class="formula-box coral">Range = Max − Min</div>
+        <ul class="step-list">
+          <li><span class="step-num sn-coral">1</span>Find the maximum (largest) value</li>
+          <li><span class="step-num sn-coral">2</span>Find the minimum (smallest) value</li>
+          <li><span class="step-num sn-coral">3</span>Subtract: Max − Min</li>
+        </ul>
+        <div><span class="example-badge">example</span></div>
+        <div style="font-family:var(--mono);font-size:0.82rem;color:var(--muted);">
+          <span style="color:var(--coral)">3</span>, 7, 2, 9, <span style="color:var(--coral)">14</span> → Range = <span style="color:var(--coral)">14 − 2 = 12</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- VIDEOS -->
+<section id="videos" class="video-section">
+  <div class="video-wrap">
+    <div class="section-label">02 · watch &amp; learn</div>
+    <h2 class="section-title">Video Lessons</h2>
+    <p class="section-sub">Watch a short video for each topic before diving into the practice problems.</p>
+    <div class="video-grid" style="grid-template-columns: repeat(2, 1fr); max-width: 780px;">
+
+      <div class="video-card vc-teal">
+        <a href="https://youtu.be/StytzEscN7Q?si=m6KaSabllvHNVplY" target="_blank" rel="noopener" class="video-thumb-link">
+          <div class="video-thumb" style="background-image: url('https://img.youtube.com/vi/StytzEscN7Q/hqdefault.jpg');">
+            <div class="play-btn"><div class="play-icon"></div></div>
+          </div>
+        </a>
+        <div class="video-info">
+          <div class="video-tag vt-teal">median &amp; mode</div>
+          <div class="video-title">Median &amp; Mode Explained</div>
+          <div class="video-desc">A clear tutorial on finding the median and mode of a data set, perfect for 7th grade students.</div>
+        </div>
+      </div>
+
+      <!-- Range video -->
+      <div class="video-card vc-coral">
+        <a href="https://www.youtube.com/watch?v=IHginNwss5c" target="_blank" rel="noopener" class="video-thumb-link">
+          <div class="video-thumb" style="background-image: url('https://img.youtube.com/vi/IHginNwss5c/hqdefault.jpg');">
+            <div class="play-btn"><div class="play-icon"></div></div>
+          </div>
+        </a>
+        <div class="video-info">
+          <div class="video-tag vt-coral">range</div>
+          <div class="video-title">Finding the Range</div>
+          <div class="video-desc">Learn how to find the range by subtracting the minimum from the maximum, with real data examples.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DEEP DIVE -->
+<section id="examples" class="deep-dive">
+  <div class="deep-content">
+    <div>
+      <div class="section-label">03 · worked examples</div>
+      <h2 class="section-title" style="font-size:1.9rem;">Step-by-step</h2>
+      <p class="section-sub" style="font-size:0.9rem;">Click a concept to see a worked problem. These are 7th-grade level data sets.</p>
+
+      <div class="tabs" style="margin-top:1.5rem;" id="tabRow">
+        <button class="tab-btn active-teal" onclick="showTab('median')">Median</button>
+        <button class="tab-btn" onclick="showTab('mode')">Mode</button>
+        <button class="tab-btn" onclick="showTab('range')">Range</button>
+      </div>
+
+      <!-- Median tab -->
+      <div id="tab-median">
+        <div class="worked-problem">
+          <div class="problem-title">Problem — Find the median</div>
+          <div class="problem-data">
+            <div class="pd-chip">14</div>
+            <div class="pd-chip">22</div>
+            <div class="pd-chip">9</div>
+            <div class="pd-chip">31</div>
+            <div class="pd-chip">17</div>
+            <div class="pd-chip">22</div>
+          </div>
+          <ol class="solution-steps">
+            <li>
+              <div class="ss-step">Step 1</div>
+              <div>Sort in ascending order:<br><span style="font-family:var(--mono);color:var(--muted);font-size:0.85rem;">9 &nbsp; 14 &nbsp; 17 &nbsp; 22 &nbsp; 22 &nbsp; 31</span></div>
+            </li>
+            <li>
+              <div class="ss-step">Step 2</div>
+              <div>Even count (6 values) → two middle values:<br><span style="font-family:var(--mono);color:var(--teal);font-size:0.85rem;">17 and 22</span></div>
+            </li>
+            <li>
+              <div class="ss-step">Step 3</div>
+              <div>Average the two middle values:<br><span style="font-family:var(--mono);color:var(--teal);font-size:0.85rem;">(17 + 22) ÷ 2 = 19.5</span></div>
+            </li>
+          </ol>
+          <div class="answer-box">
+            <span class="ans-label">Median</span>
+            <span class="ans-value ans-t">19.5</span>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:1rem;">
+          <h4>Even vs. Odd count</h4>
+          <p>Odd number of values → one exact middle. Even number → average the <code>n/2</code> and <code>n/2 + 1</code> values.</p>
+        </div>
+      </div>
+
+      <!-- Mode tab -->
+      <div id="tab-mode" style="display:none;">
+        <div class="worked-problem">
+          <div class="problem-title">Problem — Find the mode</div>
+          <div class="problem-data">
+            <div class="pd-chip">5</div>
+            <div class="pd-chip hi-amber">8</div>
+            <div class="pd-chip">3</div>
+            <div class="pd-chip hi-amber">8</div>
+            <div class="pd-chip hi-amber">8</div>
+            <div class="pd-chip">12</div>
+            <div class="pd-chip">3</div>
+            <div class="pd-chip">5</div>
+          </div>
+          <ol class="solution-steps">
+            <li>
+              <div class="ss-step">Step 1</div>
+              <div>Count each value:<br><span style="font-family:var(--mono);color:var(--muted);font-size:0.85rem;">3→2 &nbsp; 5→2 &nbsp; 8→3 &nbsp; 12→1</span></div>
+            </li>
+            <li>
+              <div class="ss-step">Step 2</div>
+              <div>The highest frequency is 3, which belongs to:<br><span style="font-family:var(--mono);color:var(--amber);font-size:0.85rem;">8</span></div>
+            </li>
+          </ol>
+          <div class="answer-box">
+            <span class="ans-label">Mode</span>
+            <span class="ans-value ans-a">8</span>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:1rem;border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.05);">
+          <h4 style="color:var(--amber);">Bimodal data</h4>
+          <p>If two values tie for highest frequency, both are modes. Three or more? That's called <code>multimodal</code>.</p>
+        </div>
+      </div>
+
+      <!-- Range tab -->
+      <div id="tab-range" style="display:none;">
+        <div class="worked-problem">
+          <div class="problem-title">Problem — Find the range</div>
+          <div class="problem-data">
+            <div class="pd-chip hi-coral">−4</div>
+            <div class="pd-chip">7</div>
+            <div class="pd-chip">15</div>
+            <div class="pd-chip">2</div>
+            <div class="pd-chip hi-coral">23</div>
+            <div class="pd-chip">−1</div>
+            <div class="pd-chip">10</div>
+          </div>
+          <ol class="solution-steps">
+            <li>
+              <div class="ss-step">Step 1</div>
+              <div>Find the maximum:<br><span style="font-family:var(--mono);color:var(--coral);font-size:0.85rem;">23</span></div>
+            </li>
+            <li>
+              <div class="ss-step">Step 2</div>
+              <div>Find the minimum:<br><span style="font-family:var(--mono);color:var(--coral);font-size:0.85rem;">−4</span></div>
+            </li>
+            <li>
+              <div class="ss-step">Step 3</div>
+              <div>Subtract: Max − Min<br><span style="font-family:var(--mono);color:var(--coral);font-size:0.85rem;">23 − (−4) = 27</span></div>
+            </li>
+          </ol>
+          <div class="answer-box">
+            <span class="ans-label">Range</span>
+            <span class="ans-value ans-c">27</span>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:1rem;border-color:rgba(255,107,107,0.3);background:rgba(255,107,107,0.05);">
+          <h4 style="color:var(--coral);">Negative numbers</h4>
+          <p>When subtracting a negative, it becomes addition: <code>23 − (−4) = 23 + 4 = 27</code></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div class="section-label" style="margin-top:0;">real world</div>
+      <div class="concept-card" style="border-top:3px solid var(--teal);">
+        <h3 style="font-size:1rem;">Sports Statistics</h3>
+        <p style="font-size:0.85rem;">A player's points per game over 7 games:<br>
+        <span style="font-family:var(--mono);color:var(--teal);">12, 18, 15, 22, 15, 9, 27</span></p>
+        <div style="font-size:0.82rem;color:var(--muted);font-family:var(--mono);">
+          Median = <span style="color:var(--teal);">15</span> &nbsp;|&nbsp;
+          Mode = <span style="color:var(--amber);">15</span> &nbsp;|&nbsp;
+          Range = <span style="color:var(--coral);">18</span>
+        </div>
+      </div>
+      <div class="concept-card" style="border-top:3px solid var(--amber);">
+        <h3 style="font-size:1rem;">Temperature Data</h3>
+        <p style="font-size:0.85rem;">High temps (°F) for a week:<br>
+        <span style="font-family:var(--mono);color:var(--amber);">78, 82, 75, 79, 82, 88, 71</span></p>
+        <div style="font-size:0.82rem;color:var(--muted);font-family:var(--mono);">
+          Median = <span style="color:var(--teal);">79</span> &nbsp;|&nbsp;
+          Mode = <span style="color:var(--amber);">82</span> &nbsp;|&nbsp;
+          Range = <span style="color:var(--coral);">17</span>
+        </div>
+      </div>
+      <div class="concept-card" style="border-top:3px solid var(--coral);">
+        <h3 style="font-size:1rem;">Test Scores</h3>
+        <p style="font-size:0.85rem;">Class quiz scores:<br>
+        <span style="font-family:var(--mono);color:var(--coral);">70, 85, 92, 85, 78, 61, 90, 85</span></p>
+        <div style="font-size:0.82rem;color:var(--muted);font-family:var(--mono);">
+          Median = <span style="color:var(--teal);">83</span> &nbsp;|&nbsp;
+          Mode = <span style="color:var(--amber);">85</span> &nbsp;|&nbsp;
+          Range = <span style="color:var(--coral);">31</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CALCULATOR -->
+<section id="calculator" class="calc-section">
+  <div class="calc-wrap">
+    <div class="section-label">04 · interactive</div>
+    <h2 class="section-title">Live Calculator</h2>
+    <p class="section-sub">Type in your own data set and instantly see the median, mode, and range.</p>
+
+    <div class="calc-box">
+      <div class="calc-input-group">
+        <input class="calc-input" id="numInput" type="text" placeholder="Enter numbers separated by commas: 4, 7, 2, 9, 7, 14">
+        <button class="calc-btn" onclick="calculate()">Calculate</button>
+      </div>
+      <div class="calc-hint">Try negative numbers and decimals — they work too!</div>
+
+      <div class="calc-results">
+        <div class="calc-result-card crc-t" id="card-median">
+          <div class="crc-label">Median</div>
+          <div class="crc-value" id="res-median">—</div>
+          <div class="crc-sub" id="res-median-sub">middle value</div>
+        </div>
+        <div class="calc-result-card crc-a" id="card-mode">
+          <div class="crc-label">Mode</div>
+          <div class="crc-value" id="res-mode">—</div>
+          <div class="crc-sub" id="res-mode-sub">most frequent</div>
+        </div>
+        <div class="calc-result-card crc-c" id="card-range">
+          <div class="crc-label">Range</div>
+          <div class="crc-value" id="res-range">—</div>
+          <div class="crc-sub" id="res-range-sub">max − min</div>
+        </div>
+      </div>
+
+      <div class="sorted-display" id="sortedDisplay">
+        <span style="color:var(--muted);font-size:0.8rem;font-family:var(--mono);">sorted values will appear here</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- QUIZ -->
+<section id="quiz" class="quiz-section">
+  <div class="quiz-wrap">
+    <div class="section-label">05 · practice</div>
+    <h2 class="section-title">Quiz Yourself</h2>
+    <p class="section-sub">10 questions covering median, mode, and range. Try to get them all!</p>
+
+    <div class="quiz-box">
+      <div id="quizMain">
+        <div class="quiz-meta">
+          <div class="q-progress" id="qProgress"></div>
+          <div class="q-score">Score: <span id="qScore">0</span>/10</div>
+        </div>
+        <div class="question-text" id="qText"></div>
+        <div class="data-set" id="qData"></div>
+        <div class="choices" id="qChoices"></div>
+        <div class="hint-box" id="qHint">
+          <span class="hint-box-icon">hint</span>
+          <span id="qHintText"></span>
+        </div>
+        <div class="feedback" id="qFeedback"></div>
+        <div class="quiz-nav">
+          <button class="hint-btn" id="hintBtn" onclick="showHint()">
+            <span class="hint-icon">?</span> Hint
+          </button>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="font-size:0.8rem;color:var(--muted);font-family:var(--mono);" id="qCounter"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+          </div>
+        </div>
+      </div>
+      <div class="quiz-complete" id="quizComplete">
+        <div style="font-family:var(--mono);font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">final score</div>
+        <div class="big-score" id="finalScore"></div>
+        <div style="color:var(--muted);margin-top:0.75rem;" id="finalMsg"></div>
+        <button class="retry-btn" onclick="restartQuiz()">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- QUICK REFERENCE -->
+<section class="ref-section">
+  <div class="ref-wrap">
+    <div class="section-label">06 · reference</div>
+    <h2 class="section-title">Quick Reference</h2>
+    <div class="ref-grid">
+      <div class="ref-card">
+        <h4>Median — key facts</h4>
+        <ul>
+          <li><strong>Always sort first</strong> before finding the middle</li>
+          <li><strong>Odd count:</strong> one middle value</li>
+          <li><strong>Even count:</strong> average the two middle values</li>
+          <li><strong>Outlier resistant</strong> — extreme values barely affect it</li>
+          <li>Good for <strong>skewed data</strong> like income or housing prices</li>
+        </ul>
+      </div>
+      <div class="ref-card">
+        <h4>Mode — key facts</h4>
+        <ul>
+          <li><strong>No mode</strong> = all values appear exactly once</li>
+          <li><strong>Bimodal</strong> = two modes (tie for highest frequency)</li>
+          <li><strong>Multimodal</strong> = three or more modes</li>
+          <li>Only measure that works for <strong>non-numeric data</strong></li>
+          <li>Useful for <strong>most popular</strong> item/category</li>
+        </ul>
+      </div>
+      <div class="ref-card">
+        <h4>Range — key facts</h4>
+        <ul>
+          <li>Always <strong>Range = Max − Min</strong></li>
+          <li>Range can never be <strong>negative</strong></li>
+          <li>Range of 0 means <strong>all values are equal</strong></li>
+          <li>Highly sensitive to <strong>outliers</strong></li>
+          <li>A larger range means more <strong>spread out</strong> data</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Made for <span>7th grade statistics</span> · Median, Mode &amp; Range
+</footer>
+
+<!-- MEME POPUP -->
+<div class="meme-overlay" id="memeOverlay" onclick="closeMeme(event)">
+  <div class="meme-card">
+    <span class="meme-face" id="memeFace"></span>
+    <div class="meme-title" id="memeTitle"></div>
+    <div class="meme-sub" id="memeSub"></div>
+    <button class="meme-close" onclick="closeMemeBtn()">Let's try again! 💪</button>
+  </div>
+</div>
+
+<script>
+  /* ── MEME POPUP ── */
+  const memes = [
+    { face:'😭', title:'NOT LIKE THIS', sub:'The numbers were right there...<br><strong>You were SO close.</strong> (You weren\'t close.)' },
+    { face:'🤦', title:'BRUH.', sub:'Even the calculator is giving you a look right now.<br><strong>You got this though. For real.</strong>' },
+    { face:'💀', title:'IT\'S GIVING... WRONG', sub:'The data set did NOT come to be ignored like that.<br><strong>Sort first. Always sort first.</strong>' },
+    { face:'🐠', title:'JUST KEEP SWIMMING', sub:'Dory from Finding Nemo didn\'t let wrong answers stop her.<br><strong>Neither will you. Probably.</strong>' },
+    { face:'😤', title:'THE AUDACITY', sub:'The correct answer was literally sitting right there like 👋<br><strong>You\'ll get it next time, champ.</strong>' },
+    { face:'🧊', title:'ICE COLD MISS', sub:'That answer? Absolutely frozen out.<br><strong>Warm up those math muscles and try again!</strong>' },
+    { face:'🫠', title:'MELTING RN', sub:'That one hurt to watch. Just a little bit.<br><strong>But every wrong answer makes the right one sweeter!</strong>' },
+    { face:'🐢', title:'SLOW AND STEADY', sub:'Turtles don\'t rush — and neither should you.<br><strong>Read the question carefully. You\'ve got this.</strong>' },
+    { face:'🎻', title:'THE WORLD\'S SMALLEST VIOLIN...', sub:'...is playing just for that answer.<br><strong>But hey, mistakes = learning. Science said so.</strong>' },
+    { face:'🪄', title:'NO MAGIC TRICK HERE', sub:'Unfortunately math doesn\'t bend to vibes.<br><strong>But the formula is your superpower. Use it!</strong>' },
+  ];
+
+  function showMemePopup() {
+    const m = memes[Math.floor(Math.random() * memes.length)];
+    document.getElementById('memeFace').textContent = m.face;
+    document.getElementById('memeTitle').textContent = m.title;
+    document.getElementById('memeSub').innerHTML = m.sub;
+    document.getElementById('memeOverlay').classList.add('show');
+  }
+
+  function closeMemeBtn() {
+    document.getElementById('memeOverlay').classList.remove('show');
+  }
+
+  function closeMeme(e) {
+    if (e.target === document.getElementById('memeOverlay')) closeMemeBtn();
+  }
+
+  /* ── TAB SWITCHER ── */
+  function showTab(name) {
+    ['median','mode','range'].forEach(t => {
+      document.getElementById('tab-'+t).style.display = (t===name)?'block':'none';
+    });
+    const btns = document.getElementById('tabRow').querySelectorAll('.tab-btn');
+    const classes = { median:'active-teal', mode:'active-amber', range:'active-coral' };
+    btns.forEach((b,i) => {
+      b.className = 'tab-btn';
+      if (['median','mode','range'][i] === name) b.classList.add(classes[name]);
+    });
+  }
+
+  /* ── CALCULATOR ── */
+  function calculate() {
+    const raw = document.getElementById('numInput').value;
+    const nums = raw.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+    if (nums.length < 2) {
+      alert('Please enter at least 2 numbers separated by commas.');
+      return;
+    }
+    const sorted = [...nums].sort((a,b) => a-b);
+    const n = sorted.length;
+
+    // Median
+    let median;
+    if (n % 2 === 1) {
+      median = sorted[Math.floor(n/2)];
+    } else {
+      median = (sorted[n/2-1] + sorted[n/2]) / 2;
+    }
+
+    // Mode
+    const freq = {};
+    nums.forEach(v => freq[v] = (freq[v]||0)+1);
+    const maxFreq = Math.max(...Object.values(freq));
+    let modeResult, modeSub;
+    if (maxFreq === 1) {
+      modeResult = 'None';
+      modeSub = 'no repeats';
+    } else {
+      const modes = Object.keys(freq).filter(k => freq[k]===maxFreq).map(Number).sort((a,b)=>a-b);
+      modeResult = modes.join(', ');
+      modeSub = modes.length > 1 ? (modes.length===2?'bimodal':'multimodal') : 'freq: '+maxFreq;
+    }
+
+    // Range
+    const range = sorted[n-1] - sorted[0];
+
+    // Display
+    const fmt = v => Number.isInteger(v) ? v : parseFloat(v.toFixed(2));
+    document.getElementById('res-median').textContent = fmt(median);
+    document.getElementById('res-mode').textContent = modeResult;
+    document.getElementById('res-range').textContent = fmt(range);
+    document.getElementById('res-mode-sub').textContent = modeSub;
+    document.getElementById('res-range-sub').textContent = sorted[n-1]+' − '+sorted[0];
+    document.getElementById('res-median-sub').textContent = n%2===0?'avg of 2 middles':'position '+(Math.floor(n/2)+1);
+
+    ['card-median','card-mode','card-range'].forEach((id,i) => {
+      const c = document.getElementById(id);
+      c.className = 'calc-result-card '+ ['crc-t','crc-a','crc-c'][i] +' '+ ['active-t','active-a','active-c'][i];
+    });
+
+    // Sorted chips
+    const sd = document.getElementById('sortedDisplay');
+    sd.innerHTML = '<span class="sorted-label">sorted:</span>';
+    const medianIndices = n%2===1 ? [Math.floor(n/2)] : [n/2-1, n/2];
+    const modeVals = modeResult !== 'None' ? modeResult.split(', ').map(Number) : [];
+    sorted.forEach((v,i) => {
+      const chip = document.createElement('span');
+      chip.className = 'sorted-chip';
+      if (i===0 || i===n-1) chip.classList.add('mn');
+      if (medianIndices.includes(i)) chip.classList.add('med');
+      if (modeVals.includes(v)) chip.classList.add('mod');
+      chip.textContent = v;
+      sd.appendChild(chip);
+    });
+    if (n%2===0) {
+      const sep = document.createElement('span');
+      sep.style.cssText = 'font-size:0.75rem;color:var(--muted);font-family:var(--mono);';
+      sep.textContent = '← avg these two →';
+      const chips = sd.querySelectorAll('.med');
+      if (chips.length===2) sd.insertBefore(sep, chips[1].nextSibling);
+    }
+  }
+
+  document.getElementById('numInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') calculate();
+  });
+
+  /* ── QUIZ ── */
+  const questions = [
+    { q:"What is the median of this data set?", data:"3, 7, 1, 9, 5", ans:5, choices:[4,5,6,7], hint:"Try sorting the numbers from smallest to largest first — then find the middle one.", explain:"Sorted: 1, 3, 5, 7, 9. The middle (3rd) value is 5." },
+    { q:"Find the mode of this data set.", data:"4, 8, 6, 8, 2, 8, 5", ans:8, choices:[5,6,7,8], hint:"Count how many times each number appears. Which one shows up the most?", explain:"8 appears 3 times — more than any other value." },
+    { q:"What is the range of this data set?", data:"12, 5, 19, 8, 3, 15", ans:16, choices:[12,14,16,19], hint:"Find the biggest number and the smallest number, then subtract.", explain:"Max = 19, Min = 3. Range = 19 − 3 = 16." },
+    { q:"A set has 6 values sorted as: 10, 14, 17, 21, 25, 30. What is the median?", data:"10, 14, 17, 21, 25, 30", ans:19, choices:[17,19,21,20], hint:"There are 6 values (even), so there's no single middle. Find the two middle values and average them.", explain:"Even count. Middle two are 17 and 21. (17+21)÷2 = 19." },
+    { q:"What is the mode of this data set?", data:"5, 9, 3, 7, 5, 2, 9, 5", ans:5, choices:[3,5,7,9], hint:"Tally each value: how many times does 5 appear? How about 9?", explain:"5 appears 3 times; 9 appears 2 times. Mode = 5." },
+    { q:"Find the range of this data set (includes negatives).", data:"−6, 4, −2, 11, 0, 8", ans:17, choices:[11,15,17,18], hint:"Watch out for the negative number! Subtracting a negative is the same as adding.", explain:"Max = 11, Min = −6. Range = 11 − (−6) = 11 + 6 = 17." },
+    { q:"Which best describes a data set with NO mode?", data:"2, 5, 9, 13, 20", ans:"Each value appears exactly once", choices:["All values are equal","Each value appears exactly once","The median equals the mode","The range is zero"], hint:"Mode means 'most frequent.' If no value repeats, can any value be the most frequent?", explain:"No mode means every value appears the same number of times (once here)." },
+    { q:"Find the median.", data:"22, 35, 14, 28, 35, 19, 42, 11", ans:25, choices:[22,25,28,35], hint:"8 values = even count. Sort first, then average the 4th and 5th values.", explain:"Sorted: 11,14,19,22,28,35,35,42. Middle two: 22 & 28. (22+28)÷2 = 25." },
+    { q:"The range of a set is 30 and the minimum is 15. What is the maximum?", data:"Min = 15, Range = 30", ans:45, choices:[15,30,45,55], hint:"Range = Max − Min. Rearrange the formula to solve for Max.", explain:"Range = Max − Min. So Max = Range + Min = 30 + 15 = 45." },
+    { q:"A set has modes of both 6 and 9. What do we call this?", data:"2, 6, 9, 6, 3, 9, 7", ans:"Bimodal", choices:["Unimodal","Bimodal","No mode","Median set"], hint:"The prefix 'bi-' means two. What word uses 'bi-' to describe two modes?", explain:"When two values tie for highest frequency, the data set is bimodal." },
+  ];
+
+  let current = 0, score = 0, answered = false, hintUsed = false;
+
+  function initProgress() {
+    const p = document.getElementById('qProgress');
+    p.innerHTML = '';
+    for (let i=0;i<questions.length;i++) {
+      const d = document.createElement('div');
+      d.className = 'q-dot' + (i===0?' current':'');
+      d.id = 'dot-'+i;
+      p.appendChild(d);
+    }
+  }
+
+  function loadQuestion(idx) {
+    answered = false;
+    hintUsed = false;
+    const q = questions[idx];
+    document.getElementById('qText').textContent = q.q;
+    document.getElementById('qData').textContent = q.data;
+    document.getElementById('qCounter').textContent = 'Question '+(idx+1)+' of '+questions.length;
+    document.getElementById('qFeedback').className = 'feedback';
+    document.getElementById('nextBtn').className = 'next-btn';
+    document.getElementById('qHint').className = 'hint-box';
+    document.getElementById('qHintText').textContent = '';
+    const hb = document.getElementById('hintBtn');
+    hb.disabled = false;
+    hb.innerHTML = '<span class="hint-icon">?</span> Hint';
+
+    const ch = document.getElementById('qChoices');
+    ch.innerHTML = '';
+    const letters = ['A','B','C','D'];
+    q.choices.forEach((c,i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span class="choice-letter">${letters[i]}</span>${c}`;
+      btn.onclick = () => selectAnswer(c, q.ans, q.explain);
+      ch.appendChild(btn);
+    });
+  }
+
+  function showHint() {
+    if (hintUsed || answered) return;
+    hintUsed = true;
+    document.getElementById('qHintText').textContent = questions[current].hint;
+    document.getElementById('qHint').className = 'hint-box show';
+    const hb = document.getElementById('hintBtn');
+    hb.disabled = true;
+    hb.innerHTML = '<span class="hint-icon" style="opacity:0.5;">?</span> Hint used';
+  }
+
+  function selectAnswer(choice, correct, explain) {
+    if (answered) return;
+    answered = true;
+    const isCorrect = String(choice) === String(correct);
+    if (isCorrect) score++;
+    document.getElementById('qScore').textContent = score;
+
+    const btns = document.querySelectorAll('.choice-btn');
+    btns.forEach(btn => {
+      btn.disabled = true;
+      const txt = btn.textContent.trim().slice(1).trim();
+      if (txt == String(correct)) btn.classList.add('correct');
+      else if (txt == String(choice) && !isCorrect) btn.classList.add('wrong');
+    });
+
+    const fb = document.getElementById('qFeedback');
+    fb.className = 'feedback show ' + (isCorrect?'correct':'wrong');
+    fb.textContent = isCorrect ? '✓ Correct! ' + explain : '✗ Not quite. ' + explain;
+
+    if (!isCorrect) setTimeout(showMemePopup, 400);
+
+    document.getElementById('dot-'+current).className = 'q-dot done';
+    document.getElementById('nextBtn').className = 'next-btn show';
+    const hb = document.getElementById('hintBtn');
+    hb.disabled = true;
+    if (!hintUsed) hb.innerHTML = '<span class="hint-icon" style="opacity:0.5;">?</span> Hint';
+  }
+
+  function nextQuestion() {
+    current++;
+    if (current >= questions.length) {
+      showResults();
+    } else {
+      if (current < questions.length-1) document.getElementById('dot-'+current).className = 'q-dot current';
+      loadQuestion(current);
+    }
+  }
+
+  function showResults() {
+    document.getElementById('quizMain').style.display = 'none';
+    const qc = document.getElementById('quizComplete');
+    qc.className = 'quiz-complete show';
+    const pct = Math.round(score/questions.length*100);
+    const el = document.getElementById('finalScore');
+    el.textContent = score+'/'+questions.length;
+    el.className = 'big-score ' + (pct>=80?'score-teal':pct>=60?'score-amber':'score-coral');
+    const msgs = [
+      [100,'Perfect score! You really know your stats!'],
+      [80,'Great job! You have a solid grasp of these concepts.'],
+      [60,'Good effort! Review the explanations and try again.'],
+      [0,'Keep practicing! Read through the concepts section and retry.']
+    ];
+    const msg = msgs.find(([min]) => pct>=min);
+    document.getElementById('finalMsg').textContent = msg[1];
+  }
+
+  function restartQuiz() {
+    current = 0; score = 0; hintUsed = false;
+    document.getElementById('qScore').textContent = 0;
+    document.getElementById('quizComplete').className = 'quiz-complete';
+    document.getElementById('quizMain').style.display = 'block';
+    initProgress();
+    loadQuestion(0);
+  }
+
+  // Init
+  initProgress();
+  loadQuestion(0);
+</script>
+</body>
+</html>
